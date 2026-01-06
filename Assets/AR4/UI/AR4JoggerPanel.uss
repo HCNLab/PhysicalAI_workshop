@@ -1,0 +1,93 @@
+.root {
+    position: absolute;
+    left: 16px;
+    top: 16px;
+    width: 360px;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.55);
+    border-radius: 12px;
+    -unity-font-style: normal;
+    -unity-text-align: upper-left;
+    /* 드래그 시 넘치는 슬라이더가 보이도록 */
+    overflow: visible;
+}
+
+.header {
+    height: 28px;
+    justify-content: center;
+}
+
+.title {
+    -unity-font-style: bold;
+    font-size: 16px;
+    color: white;
+}
+
+.toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-top: 8px;
+    padding: 4px 0;
+}
+
+.toolbar Button,
+.toolbar Toggle {
+    height: 24px;
+    flex-shrink: 0;
+    margin: 0 3px;
+}
+
+.poses {
+    flex-direction: column;
+    margin-top: 8px;
+    padding: 4px 0;
+}
+
+.poses > * {
+    align-items: stretch;
+    margin: 3px 0;
+}
+
+.poses Button {
+    height: 24px;
+}
+
+.list {
+    margin-top: 8px;
+    height: 280px;
+}
+
+.row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 28px;
+    margin-bottom: 2px;
+}
+
+.row > * {
+    margin: 0 4px;
+}
+
+.name {
+    width: 120px;
+    flex-shrink: 0;
+    color: #EEE;
+    font-size: 12px;
+}
+
+.slider {
+    flex: 1;
+    min-width: 140px;
+    max-width: 180px;
+}
+
+.val {
+    width: 50px;
+    flex-shrink: 0;
+    -unity-text-align: upper-right;
+    color: #DDD;
+    font-size: 11px;
+}

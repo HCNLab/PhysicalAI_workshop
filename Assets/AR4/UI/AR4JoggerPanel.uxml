@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML xmlns="UnityEngine.UIElements" xmlns:ui="UnityEngine.UIElements" xsi:noNamespaceSchemaLocation="UIDocument.uxml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Style src="AR4JoggerPanel.uss" />
+    <ui:VisualElement class="root">
+        <ui:VisualElement class="header">
+            <ui:Label class="title" text="AR4 조그 패널" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="toolbar">
+            <ui:Button name="btn-home" text="홈 포즈" />
+            <ui:Button name="btn-home-from-current" text="현재값을 홈으로" />
+            <ui:Toggle name="toggle-clamp" text="리밋 클램프" value="true" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="poses">
+            <ui:TextField name="pose-name" label="포즈 이름" />
+            <ui:Button name="btn-save" text="현재 각도 저장" />
+            <ui:DropdownField name="pose-dropdown" label="불러오기" />
+            <ui:Button name="btn-load" text="불러오기 실행" />
+            <ui:Button name="btn-refresh" text="새로고침" />
+        </ui:VisualElement>
+
+        <ui:ScrollView name="joint-list" class="list" />
+    </ui:VisualElement>
+</UXML>

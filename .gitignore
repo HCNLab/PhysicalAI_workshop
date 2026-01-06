@@ -1,0 +1,71 @@
+# ========== 기본 Unity 무시 파일 ==========
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+
+# ========== 사용자 설정 관련 ==========
+UserSettings/
+MemoryCaptures/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userprefs
+*.csproj
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# ========== OS 관련 ==========
+.DS_Store
+Thumbs.db
+
+# ========== Unity Collaborate ==========
+.collab/
+
+# ========== Crash Reports ==========
+sysinfo.txt
+
+# ========== Rider IDE ==========
+.idea/
+*.sln.iml
+
+# ========== Unity Cloud Build ==========
+*.apk
+*.aab
+*.unitypackage
+
+# ========== 빌드 산출물 ==========
+*.exe
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.xcodeproj
+*.xcworkspace
+
+# ========== 기타 ==========
+/*.swp
+*.tmp
+*.bak
+*.orig
+*.old
+
+# ========== 빌드된 실행파일 폴더 ==========
+executable_ver1.0/
+executable*/
+
+# ========== Auto-generated .meta 파일 무시는 하지 마세요 ==========
+# .meta 파일은 반드시 포함되어야 함 (Unity는 GUID로 자산 관리)
+
+# ========== Git LFS 고려 (대용량 파일) ==========
+# 프로젝트 내 모델, 애셋이 큰 경우 Git LFS 사용 권장
+# 예:
+# *.psd filter=lfs diff=lfs merge=lfs -text
