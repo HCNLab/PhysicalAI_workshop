@@ -76,4 +76,4 @@ HCN Lab - Internal Use
 
 ## 👥 기여자
 
-- HCN Lab (Human-Computer Neuroscience Lab)
+- HCN Lab
