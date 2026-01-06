@@ -16,7 +16,7 @@ Unity VR 기반 Human-Robot Interaction (HRI) 실험을 위한 디지털 트윈 
 
 | 구성요소 | 기술 |
 |----------|------|
-| 게임 엔진 | Unity 2022.3+ (HDRP) |
+| 게임 엔진 | Unity 6.0+ (HDRP) |
 | VR | Meta Quest (OpenXR) |
 | 로봇 통신 | ROS2 + ROS-TCP-Connector |
 | EEG 동기화 | Lab Streaming Layer (LSL) |
@@ -40,7 +40,7 @@ unity/
 ## 🚀 시작하기
 
 ### 요구사항
-- Unity 2022.3 LTS 이상
+- Unity 6.0 LTS 이상
 - ROS2 Humble
 - Meta Quest (VR 테스트용)
 
@@ -53,7 +53,7 @@ git lfs pull  # 대용량 파일 다운로드
 
 ### Unity 프로젝트 열기
 1. Unity Hub에서 프로젝트 추가
-2. Unity 2022.3+ 버전으로 열기
+2. Unity 6.0 버전으로 열기
 3. `Scenes/Main` 씬 로드
 
 ## 📊 EEG 마커 코드
