@@ -14658,6 +14658,14 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 13400000, guid: 4241d8d6c14abdb4b898ebc803030d4d, type: 2}
+    - target: {fileID: 544574603841073909, guid: b3e6a498c31104c42867013370b4cf66, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 544574603841073909, guid: b3e6a498c31104c42867013370b4cf66, type: 3}
+      propertyPath: robotBase
+      value: 
+      objectReference: {fileID: 662454851}
     - target: {fileID: 1359160797171626911, guid: b3e6a498c31104c42867013370b4cf66, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -17932,6 +17940,7 @@ GameObject:
   - component: {fileID: 2022868628}
   - component: {fileID: 2022868631}
   - component: {fileID: 2022868630}
+  - component: {fileID: 2022868632}
   m_Layer: 0
   m_Name: ROSConnection
   m_TagString: Untagged
@@ -17983,7 +17992,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2022868627}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6c22e425075741e46b985da872af3d6f, type: 3}
   m_Name: 
@@ -18032,6 +18041,36 @@ MonoBehaviour:
   gripperJaw2: {fileID: 1294946268}
   autoFindJoints: 1
   robotRoot: {fileID: 662454851}
+--- !u!114 &2022868632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2022868627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1964039111abc8545a1289c39a739fb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  topicName: /joint_trajectory_controller/joint_trajectory
+  jointNames:
+  - joint_1
+  - joint_2
+  - joint_3
+  - joint_4
+  - joint_5
+  - joint_6
+  robotRoot: {fileID: 662454851}
+  enableManualControl: 0
+  joint1_cmd: 0
+  joint2_cmd: 0
+  joint3_cmd: 0
+  joint4_cmd: 0
+  joint5_cmd: 0
+  joint6_cmd: 0
+  trajectoryDuration: 0.5
+  publishRate: 10
 --- !u!1 &2024529866
 GameObject:
   m_ObjectHideFlags: 8
