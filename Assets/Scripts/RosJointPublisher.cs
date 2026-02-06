@@ -102,7 +102,7 @@ public class RosJointPublisher : MonoBehaviour
     [Range(-3.14f, 3.14f)] public float joint4_cmd;
     [Range(-3.14f, 3.14f)] public float joint5_cmd;
     [Range(-3.14f, 3.14f)] public float joint6_cmd;
-    [Range(0, 0.04f)] public float gripper_cmd;
+    [Range(0, 0.014f)] public float gripper_cmd;
 
     void Update()
     {

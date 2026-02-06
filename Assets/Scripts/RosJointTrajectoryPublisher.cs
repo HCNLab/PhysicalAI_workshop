@@ -17,7 +17,7 @@ public class RosJointTrajectoryPublisher : MonoBehaviour
     // 관절 이름 (ROS joint_trajectory_controller와 동일해야 함)
     public string[] jointNames = new string[] {
         "joint_1", "joint_2", "joint_3", 
-        "joint_4", "joint_5", "joint_6"
+        "joint_4", "joint_5", "joint_6",
     };
 
     [Header("Robot Reference")]
@@ -35,6 +35,10 @@ public class RosJointTrajectoryPublisher : MonoBehaviour
     [Range(-3.14f, 3.14f)] public float joint4_cmd;
     [Range(-3.14f, 3.14f)] public float joint5_cmd;
     [Range(-3.14f, 3.14f)] public float joint6_cmd;
+    [Range(0, 0.014f)] public float gripper_cmd;
+
+    [Header("Visual Smoothing")]
+    public float smoothSpeed = 10f;  // 클수록 빠름
 
     [Header("Trajectory Settings")]
     [Tooltip("목표 도달까지 걸리는 시간 (초)")]
@@ -97,12 +101,63 @@ public class RosJointTrajectoryPublisher : MonoBehaviour
         {
             lastSentPositions[i] = float.NaN;
         }
+
+    }
+
+    void FixedUpdate()
+    {
+        if (!initialized || !enableManualControl) return;
+
+        ArticulationBody root = robotRoot.GetComponentInChildren<ArticulationBody>();
+
+        // 물리 solver 비활성화
+        root.immovable = true;
+
+        List<float> positions = new List<float>();
+        root.GetJointPositions(positions);
+
+        if (positions.Count >= 8)
+        {
+            positions[0] = joint1_cmd;
+            positions[1] = joint2_cmd;
+            positions[2] = joint3_cmd;
+            positions[3] = joint4_cmd;
+            positions[4] = joint5_cmd;
+            positions[5] = joint6_cmd;
+            positions[6] = gripper_cmd;
+            positions[7] = gripper_cmd;
+        }
+
+        root.SetJointPositions(positions);
+        root.SetJointVelocities(new List<float>(new float[positions.Count]));
+        root.SetJointForces(new List<float>(new float[positions.Count]));
     }
 
     void Update()
     {
         if (!initialized || !enableManualControl) return;
-        
+
+        // ROS publish만 Update에서
+        timeElapsed += Time.deltaTime;
+        if (timeElapsed >= 1.0f / publishRate)
+        {
+            timeElapsed = 0;
+            if (HasPositionChanged()) PublishJointTrajectory();
+        }
+    }
+
+    /*
+    void Update()
+    {
+        if (!initialized || !enableManualControl) return;
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            foreach (var kvp in jointMap)
+            {
+                Debug.Log($"{kvp.Key} -> {kvp.Value.name} | pos: {kvp.Value.jointPosition[0]:F4} | axis: {kvp.Value.anchorRotation.eulerAngles}");
+            }
+        }
         // Unity 로봇 모델에 Manual Control 적용 (시각적 피드백용)
         ApplyManualControlToModel();
 
@@ -119,7 +174,33 @@ public class RosJointTrajectoryPublisher : MonoBehaviour
             }
         }
     }
+    */
 
+    void ApplyManualControlToModel()
+    {
+        // 배열이 아니라 첫 번째 ArticulationBody (root) 찾기
+        ArticulationBody root = robotRoot.GetComponentInChildren<ArticulationBody>();
+
+        List<float> positions = new List<float>();
+        root.GetJointPositions(positions);
+
+        if (positions.Count >= 6)
+        {
+            positions[0] = joint1_cmd;
+            positions[1] = joint2_cmd;
+            positions[2] = joint3_cmd;
+            positions[3] = joint4_cmd;
+            positions[4] = joint5_cmd;
+            positions[5] = joint6_cmd;
+        }
+
+        root.SetJointPositions(positions);
+
+        List<float> velocities = new List<float>(new float[positions.Count]);
+        root.SetJointVelocities(velocities);
+    }
+
+    /*
     void ApplyManualControlToModel()
     {
         SetJointTarget("joint_1", joint1_cmd * Mathf.Rad2Deg);
@@ -128,7 +209,12 @@ public class RosJointTrajectoryPublisher : MonoBehaviour
         SetJointTarget("joint_4", joint4_cmd * Mathf.Rad2Deg);
         SetJointTarget("joint_5", joint5_cmd * Mathf.Rad2Deg);
         SetJointTarget("joint_6", joint6_cmd * Mathf.Rad2Deg);
+
+        
+        SetJointTarget("gripper_jaw1_joint", gripper_cmd); // Gripper usually linear (meters)
+        SetJointTarget("gripper_jaw2_joint", gripper_cmd);
     }
+    */
 
     void SetJointTarget(string name, float target)
     {
@@ -143,7 +229,7 @@ public class RosJointTrajectoryPublisher : MonoBehaviour
 
     bool HasPositionChanged()
     {
-        float[] currentPositions = { joint1_cmd, joint2_cmd, joint3_cmd, joint4_cmd, joint5_cmd, joint6_cmd };
+        float[] currentPositions = { joint1_cmd, joint2_cmd, joint3_cmd, joint4_cmd, joint5_cmd, joint6_cmd};
         float threshold = 0.001f; // ~0.06 degrees
 
         for (int i = 0; i < 6; i++)
@@ -173,7 +259,7 @@ public class RosJointTrajectoryPublisher : MonoBehaviour
         };
         
         // 속도는 0으로 설정 (목표 위치에서 정지)
-        point.velocities = new double[] { 0, 0, 0, 0, 0, 0 };
+        point.velocities = new double[] { 0, 0, 0, 0, 0, 0};
         point.accelerations = new double[] { 0, 0, 0, 0, 0, 0 };
         
         // time_from_start 설정

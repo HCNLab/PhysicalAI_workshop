@@ -36,12 +36,12 @@ public class ros : MonoBehaviour
         {
             string name = body.gameObject.name.ToLower();
             
-            if (name.Contains("joint_1") || name.Contains("joint1")) armJoints[0] = body;
-            else if (name.Contains("joint_2") || name.Contains("joint2")) armJoints[1] = body;
-            else if (name.Contains("joint_3") || name.Contains("joint3")) armJoints[2] = body;
-            else if (name.Contains("joint_4") || name.Contains("joint4")) armJoints[3] = body;
-            else if (name.Contains("joint_5") || name.Contains("joint5")) armJoints[4] = body;
-            else if (name.Contains("joint_6") || name.Contains("joint6")) armJoints[5] = body;
+            if (name.Contains("joint_1") || name.Contains("joint1") || name.Contains("link_1")) armJoints[0] = body;
+            else if (name.Contains("joint_2") || name.Contains("joint2") || name.Contains("link_2")) armJoints[1] = body;
+            else if (name.Contains("joint_3") || name.Contains("joint3") || name.Contains("link_3")) armJoints[2] = body;
+            else if (name.Contains("joint_4") || name.Contains("joint4") || name.Contains("link_4")) armJoints[3] = body;
+            else if (name.Contains("joint_5") || name.Contains("joint5") || name.Contains("link_5")) armJoints[4] = body;
+            else if (name.Contains("joint_6") || name.Contains("joint6") || name.Contains("link_6")) armJoints[5] = body;
             else if (name.Contains("jaw1")) gripperJaw1 = body;
             else if (name.Contains("jaw2")) gripperJaw2 = body;
         }
@@ -57,6 +57,22 @@ public class ros : MonoBehaviour
         int[] armIndices = new int[6] { -1, -1, -1, -1, -1, -1 };
         int jaw1Index = -1;
         int jaw2Index = -1;
+
+        
+
+        /*
+        if (msg.name != null)
+        {
+            Debug.Log(msg.position);
+            
+            foreach (var name_cur in msg.name)
+            {
+                Debug.Log(name_cur);
+            }
+            
+        }
+        */
+        
 
         for (int i = 0; i < msg.name.Length; i++)
         {
@@ -86,11 +102,13 @@ public class ros : MonoBehaviour
         if (jaw1Index != -1 && gripperJaw1 != null)
         {
             float val = (float)msg.position[jaw1Index];
+            // Debug.Log("gripper 1: " + val);
             SetJointTarget(gripperJaw1, val); // Already in correct units
         }
         if (jaw2Index != -1 && gripperJaw2 != null)
         {
             float val = (float)msg.position[jaw2Index];
+            // Debug.Log("gripper 2: " + val);
             SetJointTarget(gripperJaw2, val);
         }
     }
