@@ -51,6 +51,13 @@ public class RosJointTrajectoryPublisher : MonoBehaviour
     private float[] lastSentPositions = new float[6];
     private bool initialized = false;
 
+
+
+    private Quaternion initialRot5;
+    private Quaternion initialRot6;
+    private Transform link5Transform;
+    private Transform link6Transform;
+
     void Start()
     {
         ros = ROSConnection.GetOrCreateInstance();
@@ -102,8 +109,23 @@ public class RosJointTrajectoryPublisher : MonoBehaviour
             lastSentPositions[i] = float.NaN;
         }
 
+
+
+        // Start() 끝에 추가
+        if (jointMap.ContainsKey("joint_5"))
+        {
+            link5Transform = jointMap["joint_5"].transform;
+            initialRot5 = link5Transform.localRotation;
+        }
+        if (jointMap.ContainsKey("joint_6"))
+        {
+            link6Transform = jointMap["joint_6"].transform;
+            initialRot6 = link6Transform.localRotation;
+        }
+
     }
 
+    /*
     void FixedUpdate()
     {
         if (!initialized || !enableManualControl) return;
@@ -145,8 +167,9 @@ public class RosJointTrajectoryPublisher : MonoBehaviour
             if (HasPositionChanged()) PublishJointTrajectory();
         }
     }
+    */
 
-    /*
+    
     void Update()
     {
         if (!initialized || !enableManualControl) return;
@@ -174,8 +197,42 @@ public class RosJointTrajectoryPublisher : MonoBehaviour
             }
         }
     }
-    */
+    
 
+    // ApplyManualControlToModel 교체
+    void ApplyManualControlToModel()
+    {
+        ArticulationBody root = robotRoot.GetComponentInChildren<ArticulationBody>();
+
+        // Joint 1~4: SetJointPositions (정상 작동)
+        List<float> positions = new List<float>();
+        root.GetJointPositions(positions);
+        if (positions.Count >= 8)
+        {
+            positions[0] = joint1_cmd;
+            positions[1] = joint2_cmd;
+            positions[2] = joint3_cmd;
+            positions[3] = joint4_cmd;
+            positions[4] = 0f;  // joint 5는 Transform으로 제어
+            positions[5] = 0f;  // joint 6도 Transform으로 제어
+        }
+        root.SetJointPositions(positions);
+        root.SetJointVelocities(new List<float>(new float[positions.Count]));
+
+        // Joint 5, 6: Transform 직접 회전
+        if (link5Transform != null)
+        {
+            // URDF joint_5 axis = (1,0,0)
+            link5Transform.localRotation = initialRot5 * Quaternion.AngleAxis(joint5_cmd * Mathf.Rad2Deg, Vector3.back);
+        }
+        if (link6Transform != null)
+        {
+            // URDF joint_6 axis = (0,0,1)
+            link6Transform.localRotation = initialRot6 * Quaternion.AngleAxis(joint6_cmd * Mathf.Rad2Deg, Vector3.down);
+        }
+    }
+
+    /*
     void ApplyManualControlToModel()
     {
         // 배열이 아니라 첫 번째 ArticulationBody (root) 찾기
@@ -199,6 +256,7 @@ public class RosJointTrajectoryPublisher : MonoBehaviour
         List<float> velocities = new List<float>(new float[positions.Count]);
         root.SetJointVelocities(velocities);
     }
+    */
 
     /*
     void ApplyManualControlToModel()
