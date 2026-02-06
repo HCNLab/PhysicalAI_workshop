@@ -46,7 +46,25 @@ public class ObjectSpawner : MonoBehaviour
         if (pickupZone == null)
             Debug.LogWarning("[ObjectSpawner] PickupZone not set!");
     }
-    
+
+    public void activateConveyor()
+    {
+        // Stop conveyor belt (physics + visual)
+        if (conveyorBelt != null)
+            conveyorBelt.isRunning = true;
+        if (conveyorScroll != null)
+            conveyorScroll.isRunning = true;
+    }
+
+    public void stopConveyor()
+    {
+        // Stop conveyor belt (physics + visual)
+        if (conveyorBelt != null)
+            conveyorBelt.isRunning = false;
+        if (conveyorScroll != null)
+            conveyorScroll.isRunning = false;
+    }
+
     /// <summary>
     /// Start spawning sequence for a new trial
     /// </summary>

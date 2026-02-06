@@ -65,6 +65,13 @@ public class HRIExperimentManager : MonoBehaviour
     
     [Header("Conveyor Belt")]
     public ObjectSpawner objectSpawner;
+    public GameObject objectSpanwer_obj;
+
+    [Header("Conveyor Control in the main view")]
+    public ConveyorBeltMover conveyorBelt_L;  // Physics mover
+    public ConveyorBeltScroll conveyorScroll_L;  // Visual texture scroll
+    public ConveyorBeltMover conveyorBelt_R;  // Physics mover
+    public ConveyorBeltScroll conveyorScroll_R;  // Visual texture scroll
 
     [Header("Audio (Optional)")]
     public AudioClip successSound;
@@ -101,13 +108,6 @@ public class HRIExperimentManager : MonoBehaviour
         // Subscribe to EEG markers from ROS
         ros.Subscribe<StringMsg>(eegMarkerTopic, OnEEGMarkerReceived);
 
-        // Button no longer used - robot auto-triggers after assembly complete
-        // if (robotCommandButton != null)
-        // {
-        //     robotCommandButton.onClick.AddListener(OnRobotButtonClicked);
-        //     robotCommandButton.interactable = false;
-        // }
-
         // Hide feedback initially
         if (feedbackPanel != null)
             feedbackPanel.SetActive(false);
@@ -128,6 +128,7 @@ public class HRIExperimentManager : MonoBehaviour
             assemblyDetector.OnObjectPlaced += OnObjectPlacedForInstruction;
 
         UpdateUI();
+        init_conveyor();
         Debug.Log("[HRIExperimentManager] Initialized");
     }
 
@@ -167,9 +168,27 @@ public class HRIExperimentManager : MonoBehaviour
         }
     }
 
+    public void init_conveyor()
+    {
+        conveyorBelt_L.isRunning = false;
+        conveyorBelt_R.isRunning = false;
+        conveyorScroll_L.isRunning = false;
+        conveyorScroll_R.isRunning = false;
+    }
+
+    public void move_conveyor()
+    {
+        conveyorBelt_L.isRunning = true;
+        conveyorBelt_R.isRunning = true;
+        conveyorScroll_L.isRunning = true;
+        conveyorScroll_R.isRunning = true;
+    }
+
     public void StartExperiment()
     {
         currentTrial = 0;
+        move_conveyor();
+        objectSpanwer_obj.SetActive(true);
         StartNextTrial();
     }
 
@@ -305,13 +324,8 @@ public class HRIExperimentManager : MonoBehaviour
         
         if (instructionText != null)
             instructionText.text = "조립 완료! 로봇 대기 중...\n실린더 → 큐브";
-        
-        // expectedOrderText no longer used - merged into instructionText
-        // if (expectedOrderText != null)
-        //     expectedOrderText.text = "예상 순서: 실린더 → 큐브";
 
-        Debug.Log("[HRIExperimentManager] Assembly complete, auto-triggering robot in 1.5s...");
-        
+        Debug.Log("[HRIExperimentManager] Assembly complete, auto-triggering robot in 1.5s...");       
         // Auto-trigger robot after delay (instead of waiting for button)
         StartCoroutine(AutoTriggerRobotAfterDelay(1.5f));
     }
@@ -573,6 +587,7 @@ public class HRIExperimentManager : MonoBehaviour
             instructionText.text = "모든 트라이얼 완료. 참여해 주셔서 감사합니다!";
 
         Debug.Log("[HRIExperimentManager] Experiment complete");
+        objectSpanwer_obj.SetActive(false);
     }
 
     void UpdateUI()
