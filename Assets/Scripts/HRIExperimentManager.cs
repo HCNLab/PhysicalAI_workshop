@@ -25,19 +25,14 @@ public class HRIExperimentManager : MonoBehaviour
     // Which object type to ignore press detection for (Miss/Air actions)
     // "Cylinder", "Cube", "All", or "" for none
     public static string ignoreTargetType = "";
-    [Header("Error Probabilities (Weights)")]
-    [Range(0f, 10f)] public float normalWeight = 5.0f;        // Normal
-    [Range(0f, 10f)] public float actionMissWeight = 2.0f;    // Action Error: Miss (Spatial)
-    [Range(0f, 10f)] public float actionAirWeight = 2.0f;     // Action Error: Air Press
-    [Range(0f, 10f)] public float actionFreezeWeight = 2.0f;  // Action Error: Hesitation
-    [Range(0f, 10f)] public float actionDoubleWeight = 2.0f;  // Action Error: Double Tap
-    [Range(0f, 10f)] public float actionAbortWeight = 2.0f;   // Action Error: Abort
-    [Range(0f, 10f)] public float actionWrongWeight = 2.0f;   // Action Error: Wrong Target
-    [Range(0f, 10f)] public float feedbackErrorWeight = 1.0f; // Feedback Error
     
     [Header("Trial Flow")]
     public bool autoAdvance = true;      // Auto-start next trial
     public float cleanupDelay = 5.0f;    // Time for participant to clear table
+
+    [Header("Test mode A:B")]
+    public GameObject desk_pick_place;
+    public GameObject conveyor_group;
     
     [Header("UI Elements")]
     public Button robotCommandButton;
@@ -83,7 +78,7 @@ public class HRIExperimentManager : MonoBehaviour
     public ExperimentState currentState = ExperimentState.Waiting;
 
     // Error Types
-    public enum ErrorType { None, ActionMiss, ActionAir, ActionFreeze, ActionDouble, ActionAbort, ActionWrong, FeedbackError }
+    public enum ErrorType { None }
 
     // Events for data logging
     public event Action<int, float> OnTrialStart;
@@ -187,6 +182,9 @@ public class HRIExperimentManager : MonoBehaviour
     public void StartExperiment()
     {
         currentTrial = 0;
+
+        desk_pick_place.SetActive(false);
+        conveyor_group.SetActive(true);
         move_conveyor();
         objectSpanwer_obj.SetActive(true);
         StartNextTrial();
@@ -203,15 +201,9 @@ public class HRIExperimentManager : MonoBehaviour
 
         trialStartTime = Time.time;
         currentState = ExperimentState.Assembling;
-        
-        // Randomize error type for this trial
-        if (randomizeErrors)
-        {
-            SelectRandomErrorType();
-        }
-        
+
+ 
         OnTrialStart?.Invoke(currentTrial, trialStartTime);
-        
         // Send LSL marker: Trial Start
         if (lslManager != null)
             lslManager.SendTrialStart(currentTrial);
@@ -264,50 +256,6 @@ public class HRIExperimentManager : MonoBehaviour
         }
     }
     
-    void SelectRandomErrorType()
-    {
-        // Calculate total weight
-        float totalWeight = normalWeight + actionMissWeight + actionAirWeight + actionFreezeWeight + actionDoubleWeight + actionAbortWeight + actionWrongWeight + feedbackErrorWeight;
-        
-        // Generate random value between 0 and totalWeight
-        float rand = UnityEngine.Random.Range(0f, totalWeight);
-        
-        // Determine type based on cumulative weights
-        if (rand < normalWeight)
-        {
-            currentErrorType = ErrorType.None;
-        }
-        else if (rand < normalWeight + actionMissWeight)
-        {
-            currentErrorType = ErrorType.ActionMiss;
-        }
-        else if (rand < normalWeight + actionMissWeight + actionAirWeight)
-        {
-            currentErrorType = ErrorType.ActionAir;
-        }
-        else if (rand < normalWeight + actionMissWeight + actionAirWeight + actionFreezeWeight)
-        {
-            currentErrorType = ErrorType.ActionFreeze;
-        }
-        else if (rand < normalWeight + actionMissWeight + actionAirWeight + actionFreezeWeight + actionDoubleWeight)
-        {
-            currentErrorType = ErrorType.ActionDouble;
-        }
-        else if (rand < normalWeight + actionMissWeight + actionAirWeight + actionFreezeWeight + actionDoubleWeight + actionAbortWeight)
-        {
-            currentErrorType = ErrorType.ActionAbort;
-        }
-        else if (rand < normalWeight + actionMissWeight + actionAirWeight + actionFreezeWeight + actionDoubleWeight + actionAbortWeight + actionWrongWeight)
-        {
-            currentErrorType = ErrorType.ActionWrong;
-        }
-        else
-        {
-            currentErrorType = ErrorType.FeedbackError;
-        }
-        
-        // Debug.Log($"[HRIExperimentManager] Random error selected: {currentErrorType} (rand={rand:F2}/{totalWeight:F2})");
-    }
 
     /// <summary>
     /// Called when all assembly objects are in place
@@ -381,13 +329,8 @@ public class HRIExperimentManager : MonoBehaviour
 
     void SendRobotCommand()
     {
-        string command;
-        bool isError = (currentErrorType == ErrorType.ActionMiss || 
-                        currentErrorType == ErrorType.ActionAir || 
-                        currentErrorType == ErrorType.ActionFreeze || 
-                        currentErrorType == ErrorType.ActionDouble || 
-                        currentErrorType == ErrorType.ActionAbort || 
-                        currentErrorType == ErrorType.ActionWrong);
+        string command = "";
+        bool isError = (currentErrorType != ErrorType.None);
         
         // Send LSL marker: Robot Start (with error flag)
         if (lslManager != null)
@@ -396,50 +339,11 @@ public class HRIExperimentManager : MonoBehaviour
         // Reset ignore target first
         ignoreTargetType = "";
         
-        if (currentErrorType == ErrorType.ActionMiss)
-        {
-            // Unity decides which target to miss -> No sync issues!
-            string targetToMiss = (UnityEngine.Random.value > 0.5f) ? "cylinder" : "cube";
-            ignoreTargetType = targetToMiss;
-            
-            command = $"PRESS_MISS:{targetToMiss}";
-            Debug.Log($"[HRIExperimentManager] Sending ACTION ERROR command: MISS {targetToMiss.ToUpper()} (Ignore Set Immediately)");
-        }
-        else if (currentErrorType == ErrorType.ActionAir)
-        {
-            // Air Press also needs a target
-            string targetToAir = (UnityEngine.Random.value > 0.5f) ? "cylinder" : "cube";
-            ignoreTargetType = targetToAir;
-            
-            command = $"PRESS_AIR:{targetToAir}";
-            Debug.Log($"[HRIExperimentManager] Sending ACTION ERROR command: AIR {targetToAir.ToUpper()} (Ignore Set Immediately)");
-        }
-        else if (currentErrorType == ErrorType.ActionFreeze)
-        {
-             command = "PRESS_FREEZE";
-             Debug.Log("[HRIExperimentManager] Sending ACTION ERROR command: HESITATION");
-        }
-        else if (currentErrorType == ErrorType.ActionDouble)
-        {
-            command = "PRESS_DOUBLE";
-            Debug.Log("[HRIExperimentManager] Sending ACTION ERROR command: DOUBLE TAP");
-        }
-        else if (currentErrorType == ErrorType.ActionAbort)
-        {
-            command = "PRESS_ABORT";
-            Debug.Log("[HRIExperimentManager] Sending ACTION ERROR command: ABORT");
-        }
-        else if (currentErrorType == ErrorType.ActionWrong)
-        {
-            command = "PRESS_WRONG";
-            Debug.Log("[HRIExperimentManager] Sending ACTION ERROR command: WRONG TARGET");
-        }
-        else
+        if (currentErrorType == ErrorType.None)
         {
             // Send correct command (Normal or FeedbackError)
             command = "PRESS_CORRECT";
         }
-
         ros.Publish(robotCommandTopic, new StringMsg(command));
     }
 
@@ -480,40 +384,11 @@ public class HRIExperimentManager : MonoBehaviour
         currentState = ExperimentState.Feedback;
         
         bool showSuccess;
-        
-        if (currentErrorType == ErrorType.FeedbackError)
-        {
-            // Wrong feedback: show FAILED even though it succeeded
-            showSuccess = false;
-            Debug.Log("[HRIExperimentManager] Showing FEEDBACK ERROR (false failure)");
+        // Normal: show success
+        showSuccess = true;
             
-            // Send LSL marker: Feedback Error (false failure)
-            if (lslManager != null)
-                lslManager.SendFeedbackError();
-        }
-        else if (currentErrorType == ErrorType.ActionMiss || 
-                 currentErrorType == ErrorType.ActionAir || 
-                 currentErrorType == ErrorType.ActionFreeze || 
-                 currentErrorType == ErrorType.ActionDouble || 
-                 currentErrorType == ErrorType.ActionAbort || 
-                 currentErrorType == ErrorType.ActionWrong)
-        {
-            // Action error: actually failed
-            showSuccess = false;
-            
-            // Send LSL marker: Feedback Wrong (actual failure)
-            if (lslManager != null)
-                lslManager.SendFeedbackWrong();
-        }
-        else
-        {
-            // Normal: show success
-            showSuccess = true;
-            
-            // Send LSL marker: Feedback Correct
-            if (lslManager != null)
-                lslManager.SendFeedbackCorrect();
-        }
+        // Send LSL marker: Feedback Correct
+        if (lslManager != null)
 
         // Show feedback UI and hide instruction panel
         if (feedbackPanel != null)
@@ -548,8 +423,7 @@ public class HRIExperimentManager : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
         
-        // FinalizeAssembly moved to OnRobotStatus for immediate effect
-        
+        // FinalizeAssembly moved to OnRobotStatus for immediate effect        
         currentState = ExperimentState.Cleanup;
         
         if (autoAdvance)
@@ -623,26 +497,6 @@ public class HRIExperimentManager : MonoBehaviour
     [ContextMenu("Set Error: None")]
     void SetErrorNone() => SetErrorType(ErrorType.None);
 
-    [ContextMenu("Set Error: Action Wrong")]
-    void SetErrorActionWrong() => SetErrorType(ErrorType.ActionWrong);
-
-    [ContextMenu("Set Error: Action Miss")]
-    void SetErrorActionMiss() => SetErrorType(ErrorType.ActionMiss);
-
-    [ContextMenu("Set Error: Action Air")]
-    void SetErrorActionAir() => SetErrorType(ErrorType.ActionAir);
-
-    [ContextMenu("Set Error: Action Freeze")]
-    void SetErrorActionFreeze() => SetErrorType(ErrorType.ActionFreeze);
-
-    [ContextMenu("Set Error: Action Double")]
-    void SetErrorActionDouble() => SetErrorType(ErrorType.ActionDouble);
-
-    [ContextMenu("Set Error: Action Abort")]
-    void SetErrorActionAbort() => SetErrorType(ErrorType.ActionAbort);
-
-    [ContextMenu("Set Error: Feedback")]
-    void SetErrorFeedback() => SetErrorType(ErrorType.FeedbackError);
 
     [ContextMenu("Simulate Button Click")]
     void SimulateButtonClick()

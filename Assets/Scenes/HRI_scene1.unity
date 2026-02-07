@@ -1386,16 +1386,10 @@ MonoBehaviour:
   currentTrial: 0
   currentErrorType: 0
   randomizeErrors: 1
-  normalWeight: 0.67
-  actionMissWeight: 0.33
-  actionAirWeight: 0
-  actionFreezeWeight: 0
-  actionDoubleWeight: 0
-  actionAbortWeight: 0
-  actionWrongWeight: 0
-  feedbackErrorWeight: 0
   autoAdvance: 1
   cleanupDelay: 0.5
+  desk_pick_place: {fileID: 2060404334}
+  conveyor_group: {fileID: 2015707208}
   robotCommandButton: {fileID: 0}
   feedbackText: {fileID: 1905991610}
   trialCounterText: {fileID: 0}
@@ -17443,6 +17437,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2059596474}
   m_Mesh: {fileID: 4300008, guid: 47616bd0cda748d4cbedcfc908506b9d, type: 3}
+--- !u!1 &2060404334 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3116566584170727252, guid: 8850d132797ff49298ba781e8e1c9bfe, type: 3}
+  m_PrefabInstance: {fileID: 1702818130}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2065755438
 GameObject:
   m_ObjectHideFlags: 0

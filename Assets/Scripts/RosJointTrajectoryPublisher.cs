@@ -90,7 +90,7 @@ public class RosJointTrajectoryPublisher : MonoBehaviour
                     if (isMatch && !jointMap.ContainsKey(jointName))
                     {
                         jointMap[jointName] = ab;
-                        Debug.Log($"[RosJointTrajectoryPublisher] Mapped: {jointName} -> {ab.name}");
+                        // Debug.Log($"[RosJointTrajectoryPublisher] Mapped: {jointName} -> {ab.name}");
                     }
                 }
             }

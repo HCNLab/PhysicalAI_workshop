@@ -29,7 +29,7 @@ public class VoiceCommandHandler : MonoBehaviour
     {
         if (voiceExperience == null)
         {
-            voiceExperience = FindObjectOfType<AppVoiceExperience>();
+            voiceExperience = FindFirstObjectByType<AppVoiceExperience>();
         }
         
         if (voiceExperience != null)
